@@ -93,8 +93,12 @@ LossW = 2.0  × L1_text
 ├── weights/
 │   ├── loss1/   # L1 loss 학습 가중치 (SwinIR scratch/fine-tune, SRCNN × PSNR/SSIM best)
 │   └── loss4/   # LossW 학습 가중치 (동일 구성) ← 서비스에는 best_swinir_psnr_text_loss_4.pt 사용
+├── docs/
+│   └── SwinIR.md   # SwinIR 논문 정리 + 노트북 코드 설명
 └── assets/      # 결과 비교 이미지
 ```
+
+**📄 SwinIR 구조와 코드에 대한 자세한 설명은 [docs/SwinIR.md](docs/SwinIR.md) 참고.**
 
 ## 한계 및 향후 과제
 
