@@ -55,7 +55,7 @@ LossW = 2.0  × L1_text
 | 항목 | 내용 |
 |---|---|
 | 목적함수 | val **SSIM Text** 최대화 |
-| 탐색 공간 | lr (5e-6~2e-4), b (0.005~0.5), c (0.01~1.0), d (0.005~0.3) — 모두 log scale |
+| 탐색 공간 | lr (5e-6 – 2e-4), b (0.005 – 0.5), c (0.01 – 1.0), d (0.005 – 0.3) — 모두 log scale 샘플링 |
 | 탐색 전략 | TPESampler + MedianPruner (가망 없는 trial 조기 중단) + 얼리스탑 (patience 4) |
 | 규모 | 20 trials × 최대 15 epoch (5개 trial pruning으로 조기 종료) |
 | 최종 학습 | best params로 최대 100 epoch, 얼리스탑 patience 10 |
