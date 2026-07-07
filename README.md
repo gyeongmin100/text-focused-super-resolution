@@ -139,8 +139,8 @@ lr = 1.94e-4
 │   └── v3_optuna_super_resolution.ipynb  # Optuna 탐색→최종 학습→평가
 ├── weights/
 │   ├── loss1/   # L1 loss 학습 가중치 (SwinIR scratch/fine-tune, SRCNN × PSNR/SSIM best)
-│   ├── loss4/   # LossW 학습 가중치 (동일 구성) ← 서비스에는 best_swinir_psnr_text_loss_4.pt 사용
-│   └── optuna/  # Optuna best params로 100 epoch 학습한 가중치 (SSIM/PSNR best)
+│   ├── loss4/   # LossW 학습 가중치 (동일 구성)
+│   └── optuna/  # Optuna best params로 100 epoch 학습한 가중치 ← 서비스에는 best_swinir_optuna_psnr.pt 사용
 ├── results/
 │   ├── ocr_summary_results.csv           # 전체 모델 OCR 평가 결과
 │   └── ocr_optuna_summary_results.csv    # Optuna 모델 OCR 평가 결과

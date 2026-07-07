@@ -2,6 +2,7 @@
 
 > 논문: [SwinIR: Image Restoration Using Swin Transformer](https://arxiv.org/abs/2108.10257) (Liang et al., ICCVW 2021)
 > 이 문서는 SwinIR의 구조를 정리하고, 본 프로젝트 노트북(`notebook/v2_loss4_super_resolution.ipynb`)의 코드가 논문 내용과 어떻게 대응되는지 설명한다.
+> 여기서 수동으로 정한 LossW 가중치·학습률은 이후 Optuna로 자동 탐색해 개선했다 — `notebook/v3_optuna_super_resolution.ipynb` 및 [메인 README의 Optuna 섹션](../README.md#optuna-하이퍼파라미터-탐색) 참고.
 
 ---
 
@@ -125,7 +126,7 @@ LossW(loss_4) = 2.0  × L1_text          # 텍스트 영역 L1
 3. 각 패치 출력을 HR 좌표(×2)에 누적하고 겹침 횟수로 나눠 평균
 4. 최종적으로 원본×2 크기로 resize
 
-이 함수가 그대로 [또렷 서비스](https://ddoreot.site) 백엔드의 추론 로직이 되었다.
+이 함수가 그대로 [또렷 서비스](https://ddoreot.site) 백엔드의 추론 로직이 되었다. (서비스 가중치는 현재 Optuna 탐색 모델 `weights/optuna/best_swinir_optuna_psnr.pt` 사용)
 
 ### 4-6. 평가
 
