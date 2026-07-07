@@ -107,18 +107,27 @@ lr = 1.94e-4
 
 → 목적함수였던 **SSIM Text가 +0.0083 상승** (SSIM Global도 상승), PSNR은 소폭 하락. 픽셀 오차(PSNR)를 일부 양보하고 **구조 유사도(SSIM)를 얻는 방향**으로 최적화됐고, 아래 OCR 평가에서 이 트레이드가 실제 인식 성능 향상으로 이어짐을 확인.
 
-### OCR 평가 (EasyOCR, CER 기준 상위)
+### OCR 평가 (EasyOCR, CER 오름차순 — 전체 결과)
 
 | Method | CER ↓ | WER ↓ |
 |---|---|---|
 | HR Original (상한선) | 0.2472 | 0.5765 |
 | **SwinIR fine-tune Optuna (PSNR best)** | **0.2588** | **0.6090** |
 | SwinIR fine-tune Optuna (SSIM best) | 0.2678 | 0.6244 |
-| SwinIR fine-tune LossW | 0.2697 | 0.6255 |
-| SwinIR fine-tune L1 | 0.2772 | 0.6350 |
+| SwinIR fine-tune LossW (PSNR best) | 0.2697 | 0.6255 |
+| SwinIR fine-tune LossW (SSIM best) | 0.2698 | 0.6275 |
+| SwinIR fine-tune L1 (SSIM best) | 0.2772 | 0.6350 |
+| SwinIR fine-tune L1 (PSNR best) | 0.2833 | 0.6370 |
 | LR Bicubic | 0.2875 | 0.6498 |
+| SwinIR scratch LossW (SSIM best) | 0.3041 | 0.6701 |
+| SwinIR scratch LossW (PSNR best) | 0.3046 | 0.6701 |
+| SwinIR scratch L1 (SSIM best) | 0.3061 | 0.6729 |
 | LR raw | 0.3067 | 0.6496 |
-| SRCNN L1 | 0.4032 | 0.8058 |
+| SwinIR scratch L1 (PSNR best) | 0.3115 | 0.6786 |
+| SRCNN LossW (SSIM best) | 0.3322 | 0.7117 |
+| SRCNN LossW (PSNR best) | 0.3337 | 0.7138 |
+| SRCNN L1 (SSIM best) | 0.3955 | 0.7968 |
+| SRCNN L1 (PSNR best) | 0.4032 | 0.8058 |
 
 → **Optuna 탐색 모델이 HR을 제외한 전체 1위** (CER 0.2697 → 0.2588, 수동 설정 LossW 대비 4% 개선). HR 원본과의 격차도 0.0225 → 0.0116으로 절반 가까이 좁힘. 화질 개선이 실제 텍스트 인식 정확도 향상으로 이어짐을 확인.
 
@@ -133,6 +142,7 @@ lr = 1.94e-4
 │   ├── loss4/   # LossW 학습 가중치 (동일 구성) ← 서비스에는 best_swinir_psnr_text_loss_4.pt 사용
 │   └── optuna/  # Optuna best params로 100 epoch 학습한 가중치 (SSIM/PSNR best)
 ├── results/
+│   ├── ocr_summary_results.csv           # 전체 모델 OCR 평가 결과
 │   └── ocr_optuna_summary_results.csv    # Optuna 모델 OCR 평가 결과
 ├── docs/
 │   └── SwinIR.md   # SwinIR 논문 정리 + 노트북 코드 설명
