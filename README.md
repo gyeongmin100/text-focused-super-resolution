@@ -48,6 +48,30 @@ LossW = 2.0  × L1_text
 
 문서 이미지는 배경 질감보다 글자가 중요하므로, 텍스트 영역 L1에 40배 큰 가중치를 주고 텍스트 SSIM 항을 추가해 획 구조를 우선 학습하도록 설계했습니다.
 
+### Optuna 하이퍼파라미터 탐색
+
+수동으로 정했던 LossW 가중치와 learning rate를 **Optuna**로 자동 탐색해 fine-tuning 성능을 추가로 끌어올렸습니다. Adam은 loss 전체 스케일에 거의 불변이므로 텍스트 L1 가중치는 `a=2.0`으로 고정하고, 나머지 비율과 lr의 4차원만 탐색했습니다.
+
+| 항목 | 내용 |
+|---|---|
+| 목적함수 | val **SSIM Text** 최대화 |
+| 탐색 공간 | lr (5e-6~2e-4), b (0.005~0.5), c (0.01~1.0), d (0.005~0.3) — 모두 log scale |
+| 탐색 전략 | TPESampler + MedianPruner (가망 없는 trial 조기 중단) + 얼리스탑 (patience 4) |
+| 규모 | 20 trials × 최대 15 epoch (5개 trial pruning으로 조기 종료) |
+| 최종 학습 | best params로 최대 100 epoch, 얼리스탑 patience 10 |
+
+**Best params (trial 20, 탐색 중 val SSIM Text 0.9464):**
+
+```
+LossW_optuna = 2.0    × L1_text
+             + 0.0403 × L1_background
+             + 0.6458 × (1 − SSIM_text)
+             + 0.0076 × (1 − SSIM_global)
+lr = 1.94e-4
+```
+
+수동 설정 대비 **텍스트 SSIM 항의 가중치(c)가 약 6배 커지고 lr도 10배 커진 조합**이 선택됨 — 텍스트 구조 복원을 더 강하게 미는 방향으로 수렴했습니다. 탐색·최종 학습 노트북은 `notebook/v3_optuna_super_resolution.ipynb`.
+
 ## 실험 결과
 
 ### PSNR / SSIM (test 347장)
@@ -77,22 +101,28 @@ LossW = 2.0  × L1_text
 | Method | CER ↓ | WER ↓ |
 |---|---|---|
 | HR Original (상한선) | 0.2472 | 0.5765 |
-| **SwinIR fine-tune LossW** | **0.2697** | **0.6255** |
+| **SwinIR fine-tune Optuna (PSNR best)** | **0.2588** | **0.6090** |
+| SwinIR fine-tune Optuna (SSIM best) | 0.2678 | 0.6244 |
+| SwinIR fine-tune LossW | 0.2697 | 0.6255 |
 | SwinIR fine-tune L1 | 0.2772 | 0.6350 |
 | LR Bicubic | 0.2875 | 0.6498 |
 | LR raw | 0.3067 | 0.6496 |
 | SRCNN L1 | 0.4032 | 0.8058 |
 
-→ **Fine-tune + LossW가 HR을 제외한 전체 1위.** 화질 개선이 실제 텍스트 인식 정확도 향상으로 이어짐을 확인.
+→ **Optuna 탐색 모델이 HR을 제외한 전체 1위** (CER 0.2697 → 0.2588, 수동 설정 LossW 대비 4% 개선). HR 원본과의 격차도 0.0225 → 0.0116으로 절반 가까이 좁힘. 화질 개선이 실제 텍스트 인식 정확도 향상으로 이어짐을 확인.
 
 ## 저장소 구성
 
 ```
 ├── notebook/
-│   └── v2_loss4_super_resolution.ipynb   # 전처리→학습→평가 전 과정
+│   ├── v2_loss4_super_resolution.ipynb   # 전처리→학습→평가 전 과정
+│   └── v3_optuna_super_resolution.ipynb  # Optuna 탐색→최종 학습→평가
 ├── weights/
 │   ├── loss1/   # L1 loss 학습 가중치 (SwinIR scratch/fine-tune, SRCNN × PSNR/SSIM best)
-│   └── loss4/   # LossW 학습 가중치 (동일 구성) ← 서비스에는 best_swinir_psnr_text_loss_4.pt 사용
+│   ├── loss4/   # LossW 학습 가중치 (동일 구성) ← 서비스에는 best_swinir_psnr_text_loss_4.pt 사용
+│   └── optuna/  # Optuna best params로 100 epoch 학습한 가중치 (SSIM/PSNR best)
+├── results/
+│   └── ocr_optuna_summary_results.csv    # Optuna 모델 OCR 평가 결과
 ├── docs/
 │   └── SwinIR.md   # SwinIR 논문 정리 + 노트북 코드 설명
 └── assets/      # 결과 비교 이미지
