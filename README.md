@@ -96,6 +96,17 @@ lr = 1.94e-4
 
 → 모든 지표에서 LossW 우세, 특히 **텍스트 영역 지표의 개선 폭이 더 큼** — 텍스트 가중 학습이 의도대로 작동.
 
+**Optuna 탐색 모델 (Fine-tuning SwinIR 기준 비교):**
+
+| 지표 | LossW (수동) | **Optuna SSIM best** | Optuna PSNR best |
+|---|---|---|---|
+| PSNR Global | **33.59** | 32.94 | 32.87 |
+| SSIM Global | 0.9593 | **0.9650** | 0.9615 |
+| PSNR Text | **29.61** | 29.23 | 28.94 |
+| SSIM Text | 0.9469 | **0.9552** | 0.9522 |
+
+→ 목적함수였던 **SSIM Text가 +0.0083 상승** (SSIM Global도 상승), PSNR은 소폭 하락. 픽셀 오차(PSNR)를 일부 양보하고 **구조 유사도(SSIM)를 얻는 방향**으로 최적화됐고, 아래 OCR 평가에서 이 트레이드가 실제 인식 성능 향상으로 이어짐을 확인.
+
 ### OCR 평가 (EasyOCR, CER 기준 상위)
 
 | Method | CER ↓ | WER ↓ |
